@@ -1,0 +1,270 @@
+---
+title: "Capstone-bike-case-study-github"
+author: "Patrick Brooks - Partial fulfillment of Google Analysis Certificate"
+output: 
+  github_document:
+    html_preview: true
+    toc: true
+    toc_depth: 3
+    fig_width: 10
+    fig_height: 5
+    dev: jpeg
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+
+
+# ----------- Clear environment change debug variable to FALSE -------------
+rm(list = ls()); edatest = FALSE # Variable created in sandbox to show intermediate results. Not needed for analysis
+
+# --------- Libraries used in this analysis
+library(pollster)
+library(tidyverse)
+library(crosstable) 
+library(geosphere) 
+library(rmarkdown)
+library(reshape2)
+library(ggpubr)
+library(knitr)
+library(datadictionary)
+
+envloaded <- search() # Capture R environment
+
+
+
+# ----------- Set knitr attributes across the document ---------
+knitr::opts_chunk$set(echo = FALSE, results='hold')
+
+# ----------- Set plot attributes across all plots -------------
+originaltheme = theme_set(theme_get())
+theme_set(theme_bw())
+theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+
+
+
+```
+
+# Executive Summary
+
+The purpose of this analysis is to explore how annual members and casual riders use Cyclistic bikes differently. An analysis of 4 months in 2022 (June - September). The observed differences are:\
+- Casual customers use the bikes more on weekends and members use the bikes more during the weekdays.\
+- Casual customers use the classic bikes and members tend to use electric bikes.\
+- zzz dkslkdjflskdj sljkfslkdjflsjd sldkjslkfjsldkjf sldjfslkljd\
+
+The paper below outlines the business context, problem statement, assumptions, methodology, analysis and discussion.
+
+## 1. Introduction
+
+Cyclistic is a bike-sharing company that features 5,824 geo-tracked bikes and 692 docking stations across Chicago. Bikes are unlocked at one station and returned to any other station at anytime. Cyclistic differentiates itself by offering reclining bikes, and other bikes that make sharing more inclusive. The majority of riders opt for traditional bikes; about 8% use the assistive options. Most Cyclistic users ride for leisure with 30% using the bikes to commute to work.
+
+The Directory of Marketing, Lily Moreno, thinks that future company success will come from maximizing annual membership. The data analysis team needs to better understand:
+
+1.  How do annual members and casual riders use Cyclistic bikes differently?\
+2.  Why would casual riders buy Cyclistic annual memberships?\
+3.  How can Cyclistic use digital media to influence casual riders to become members?\
+
+This analysis will focus on the first question \>How casual riders and annual members use Cyclistic bikes differently
+
+## 2. Assumptions and Definitions
+
+See the reference section below for R packages used, data source, license agreement and privacy and data dictionary.
+
+-   Casual riders - purchase single-ride or full-day passes\
+-   Members - Use bikes for any length of time\
+-   Specific data used in this analysis were months of June-September of 2022. This period would reflect spring/summer periods and post-COVID lock-down.\
+-   Along with the data provided several additional fields were calculated and outlined in the data dictionary in the reference section.\
+
+## 3. Methodology
+
+Data was downloaded to a local computer. The data is not stored on GitHub. Pointers to the specific data sets are provided in the reference section.
+
+The monthly datasets are very large and combining the four months resulted in 3 million plus records. All of the data was 'cleaned'. The number of casual customers are likely different from the number of members. To minimize a sampling bians data was sampled by randomly selecting 1% of the casual customers and 1% of the members. Roughly 60k samples were used to complete the analysis. A ransom seed was set to provide analysis reproducability.
+
+Data cleaning included:
+
+-   Keep rows with positive trip time (end was later than start)\
+-   Keep rows not NA and triptime \> 1 minute (assume less than one minute was user or machine error)\
+-   Keep rows where end station name and longitude exist (remove data that did not have an endpoint)\
+-   Create day of week (dow) with Monday as the starting day.\
+-   Calculate distance based on longitude and latitude\
+-   Category variable for trips less than or equal 45 minutes or trips longer than 45 minutes - casual user bike rides include the first 45 minutes\
+
+For readability output from the R code was turned off. Source codes is available from the git-hub site 'here'
+
+```{r read-data}
+
+fllist <-list.files("./source-data", full.names = TRUE)
+flrcrd <- c(769204, 823488, 785932, 701339)
+flstats <- data.frame(fllist, flrcrd)
+
+df <- list.files(path = "./source-data", full.names = TRUE, pattern = "*.csv") %>% map_df(~read_csv(., show_col_types = FALSE))
+
+
+```
+
+```{r clean-calculate}
+
+# Create new dataframe.  Keep rows where started_at < ended_at (Positive trip time)
+cfile = subset(df, started_at < ended_at)
+
+# Calculate trip time
+cfile$trip_time = as.numeric(difftime(cfile$ended_at, cfile$started_at, tz = "UTC", units = c("hours")))
+# print(paste("Keep rows where started_at < ended_at: ",nrow(cfile)))
+
+# Keep rows not NA and triptime > 1 minute
+cfile = subset(cfile, !is.na(trip_time) & trip_time*60 > 1)
+# print(paste("Trips > 1 minute: ",subset(cfile, !is.na(trip_time)) %>% nrow()))
+
+# Keep rows where end station name and longitude exist
+cfile =  subset(cfile, !(is.na(end_lng) & is.na(end_station_name)))
+# print(paste("Keep only rows where the end station and end long/lat are populated", nrow(cfile)))
+
+# Create day of week (dow) with Monday as the starting day.
+cfile$started_dow = wday(cfile$started_at, week_start = 1, label = TRUE)
+cfile$ended_dow = wday(cfile$ended_at, week_start = 1, label = TRUE)
+
+# Calculate distance based on longitude and latitude
+cfile$trip_dist = distHaversine(matrix(c(cfile$start_lng,cfile$start_lat), ncol=2), matrix(c(cfile$end_lng,cfile$end_lat), ncol=2), r=3959)
+
+# Trip time with 45 minutes or longer
+cfile$trip_type <- if_else(cfile$trip_time <= 0.75, "First_45min", "Long_ride") %>% as.factor()
+cfile$member_casual <- as.factor(cfile$member_casual)
+cfile$rideable_type <- as.factor(cfile$rideable_type)
+
+# Gather column name for data dictionary
+ddict = melt(colnames(cfile), value.name = "data fields")
+
+```
+
+```{r grab-samples}
+
+rseed = 53679                                      # Seed starting value
+set.seed(rseed)                                    # Set seed for reproducability
+obs_rows = nrow(cfile)                             # dataset size
+obs_prcnt = .01                                    # sample percentage
+obs_samp = as.integer(round(obs_rows*obs_prcnt,0)) # Sample size
+
+
+# Pick same number of members and casual users
+s = subset(cfile, member_casual == "casual")
+s_c = s[sample(nrow(s),obs_samp),]
+s = subset(cfile, member_casual == "member")
+s_m = s[sample(nrow(s),obs_samp),]
+s = rbind(s_m,s_c)
+
+
+```
+
+Results from sampling the whole data set are provided here. There are `r obs_rows` total rows of data. For this analysis we randomly selected `r as.integer(obs_samp)` of casual and member customers. The randsom generator seed was set to `r rseed`
+
+## 4. A summary of your analysis, visualizations and key findings
+
+#### Observation #1
+
+Casual customer use the bikes more toward the weekend and members use the bikes most, during the week.
+
+```{r ob1-dow-customer-use}
+
+x = prop.table(table(s$started_dow, s$member_casual),1)
+
+x_melt <- melt(x, value.name = "pcustomer")
+colnames(x_melt)[1] = "DOW"
+colnames(x_melt)[2] = "Customer"
+x_melt %>% ggplot(aes(x = DOW, y=pcustomer, color = Customer, group = Customer)) + geom_point() + geom_line() +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) + labs(y="% Rider Type", x ="day of week", title="Daily Customer Type (%) Usage")
+
+
+```
+
+#### Observation #2
+
+Casual and members tend to use different bicycles
+
+```{r ob2-bike-type-use}
+
+# Ride type and customer
+s %>% ggplot(aes(x= rideable_type)) + geom_bar(aes(fill = member_casual), position = position_dodge()) 
+
+```
+
+#### Observation #3
+
+The current member bike service is base upon 3/4 hour. Over 3/4 hour, members are charged for additional minutes. The casual user is for their entire time of use. Casual users will tend to use the bike longer and not travel as far. Members will tend to take the bike further
+
+```{r obs3-dist-time-user-type}
+
+table(s$member_casual,s$trip_type)
+
+
+# Casual users will tend to use the bike longer and not travel as far.  Members will tend to the the bike further
+
+
+s_mean <- s %>% subset(trip_type == "First_45min") %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
+  group_by(member_casual,started_dow) %>% summarize(trip_time=mean(trip_time), trip_dist=mean(trip_dist),n()) 
+
+p1 <- s_mean %>% ggplot(aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
+  geom_line(aes(linetype=member_casual)) +
+  labs(title = "Customer usage when trip time <= 3/4 hour", subtitle = "Trip Time vs Distance" )
+
+
+s_mean <- s %>% subset(trip_type == "Long_ride") %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
+  group_by(member_casual,started_dow) %>% summarize(trip_time=mean(trip_time), trip_dist=mean(trip_dist),n()) 
+
+p2 <- s_mean %>% ggplot(aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
+  geom_line(aes(linetype=member_casual)) +
+  labs(title = "Customer usage when trip time > 3/4 hour", subtitle = "Trip Time vs Distance" )
+
+p1
+p2
+
+# ggarrange(p1, p2, ncol=1, nrow = 2)
+
+
+```
+
+## 5 References
+
+### Data Dictionary
+
+Additional information about the data can be found at [DIVVY FAQ site](https://divvybikes.com/for-everyone).  
+
+[Data Licensing Agreement](https://www.divvybikes.com/data-license-agreement).\
+
+Variables include in the data sets:
+
+```{r}
+kable(create_dictionary(cfile) %>% subset(select=-c(label)), format = "html", caption = "Data Dictionary")
+```
+
+The last 5 variables in the dictionary are calculated values (see source for specifics)\
+trip_time = ended_at - started_at\
+started_dow = day of week trip started\
+started_dow = day of week trip started\
+trip_dist. = estimated from longitude and latitude provided\
+trip_type = first 3/4hour included with cacual customer payments\
+
+### Articles
+
+The idea of calcuating distance base upon logitude and latitude came from the article referenced below. There is an R package that provided several methods for calculating distance.\
+
+Raney, Barbara (2014). *Use Power Query to Calculate Distance*, <http://www.girlswithpowertools.com/2014/05/distance/>\
+Hijmans R (2022). *geosphere: Spherical Trigonometry*. R package version 1.5-18, <https://CRAN.R-project.org/package=geosphere>.\
+
+### R Environment
+
+```{r environment, echo=FALSE}
+print("---- Summary of the environment ----")
+version$version.string
+print("    ")
+print(paste("Random number seed use: ", rseed))
+kable(envloaded, format="html", col.names = "Packages", caption = "Working environment")
+
+```
+
+### Data sources
+
+Specific datasets used in this analysis:\
+<https://divvy-tripdata.s3.amazonaws.com/202206-divvy-tripdata.zip> 769204 rows\
+<https://divvy-tripdata.s3.amazonaws.com/202207-divvy-tripdata.zip> 823488 rows\
+<https://divvy-tripdata.s3.amazonaws.com/202208-divvy-tripdata.zip> 785932 rows\
+<https://divvy-tripdata.s3.amazonaws.com/202209-divvy-tripdata.zip> 701339 rows\
