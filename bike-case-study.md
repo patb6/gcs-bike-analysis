@@ -138,10 +138,10 @@ Ride length (hours) and Customer
 <th style="text-align:left;">
 </th>
 <th style="text-align:right;">
-\<=3/4
+<=3/4
 </th>
 <th style="text-align:right;">
-\>3/4
+>3/4
 </th>
 </tr>
 </thead>
