@@ -4,10 +4,8 @@ Patrick Brooks - Partial fulfillment of Google Analysis Certificate
 
 - [Executive Summary](#executive-summary)
   - [1. Introduction](#1-introduction)
-  - [2. Assumptions and Definitions  
-    ](#2-assumptions-and-definitions-)
-  - [3. Methodology  
-    ](#3-methodology-)
+  - [2. Assumptions and Definitions](#2-assumptions-and-definitions)
+  - [3. Methodology](#3-methodology)
   - [4. A summary of your analysis, visualizations and key
     findings](#4-a-summary-of-your-analysis-visualizations-and-key-findings)
   - [5 References](#5-references)
@@ -50,10 +48,11 @@ team needs to better understand:
 3.  How can Cyclistic use digital media to influence casual riders to
     become members?  
 
-This analysis will focus on the first question \>How casual riders and
-annual members use Cyclistic bikes differently
+This analysis will focus on the first question  
+\> How casual riders and annual members use Cyclistic bikes
+differently  
 
-## 2. Assumptions and Definitions 
+## 2. Assumptions and Definitions
 
 See the reference section below for R packages used, data source,
 license agreement and privacy and data dictionary.
@@ -66,7 +65,7 @@ license agreement and privacy and data dictionary.
 - Along with the data provided several additional fields were calculated
   and outlined in the data dictionary in the reference section.  
 
-## 3. Methodology 
+## 3. Methodology
 
 Data was downloaded to a local computer. The data is not stored on
 GitHub. Pointers to the specific data sets are provided in the reference
@@ -128,7 +127,7 @@ not travel as far. Members will tend to take the bike further
     ## `summarise()` has grouped output by 'member_casual'. You can override using the
     ## `.groups` argument.
 
-![](bike-case-study_files/figure-gfm/obs3-dist-time-user-type-1.jpeg)<!-- -->
+![](bike-case-study_files/figure-gfm/obs3-dist-time-user-type-1.jpeg)<!-- -->![](bike-case-study_files/figure-gfm/obs3-dist-time-user-type-2.jpeg)<!-- -->
 
     ##         
     ##          First_45min Long_ride
@@ -146,6 +145,7 @@ site](https://divvybikes.com/for-everyone).  
 Agreement](https://www.divvybikes.com/data-license-agreement).  
 
 Variables include in the data sets:
+
 <table>
 <caption>
 Data Dictionary

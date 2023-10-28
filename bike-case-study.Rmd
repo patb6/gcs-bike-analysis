@@ -63,7 +63,8 @@ The Directory of Marketing, Lily Moreno, thinks that future company success will
 2.  Why would casual riders buy Cyclistic annual memberships?\
 3.  How can Cyclistic use digital media to influence casual riders to become members?\
 
-This analysis will focus on the first question \>How casual riders and annual members use Cyclistic bikes differently
+This analysis will focus on the first question \
+> How casual riders and annual members use Cyclistic bikes differently \
 
 ## 2. Assumptions and Definitions
 

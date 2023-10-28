@@ -89,7 +89,7 @@ theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_tex
 # ---- From the population how many customers are casual or members
 # Across the 4 months evaluated there are slightly more 'members' compared to 'casual' users
 print(paste0("Population considered: ",nrow(cfile)), quote = FALSE)
-kable(round(prop.table(table(cfile$member_casual))*100,2), col.names = c("Customer", "Percent"))
+kable(round(prop.table(table(cfile$member_casual))*100,2), col.names = c("Customer", "Percent"), caption = "Distribution of Customers")
 
 # ----- Observation 1, members and casual usage changes during the week -- Correct percentages
 
@@ -115,12 +115,30 @@ kable(table(s$member_casual,s$trip_type))
 kable(prop.table(table(s$member_casual,s$trip_type),1))
 
 
+
+# Scatter plot
+sl45 = s %>% subset(trip_type == "First_45min") %>% select(c(trip_time, trip_dist, started_dow, member_casual)) 
+kable(table(sl45$member_casual))
+ggplot(sl45,aes(x = trip_time, y = trip_dist)) + geom_point(aes(color = member_casual)) +facet_wrap(~member_casual) +
+  labs(title = "Customer usage when trip time <= 3/4 hour", subtitle = "Trip Time vs Distance" )
+
+s_mean <- sl45 %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
+  group_by(member_casual,started_dow) %>% summarize(trip_time=mean(trip_time), trip_dist=mean(trip_dist),n()) 
+ggplot(s_mean,aes(x = trip_time, y = trip_dist)) + geom_point(aes(color = started_dow)) +facet_wrap(~member_casual)
+  
+
+
 s_mean <- s %>% subset(trip_type == "First_45min") %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
   group_by(member_casual,started_dow) %>% summarize(trip_time=mean(trip_time), trip_dist=mean(trip_dist),n()) 
 
-p1 <- s_mean %>% ggplot(aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
+ ggplot(s_mean,aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
   geom_line(aes(linetype=member_casual)) +
   labs(title = "Customer usage when trip time <= 3/4 hour", subtitle = "Trip Time vs Distance" )
+
+
+
+s %>% subset(trip_type == "Long_ride") %>% select(c(trip_time, trip_dist, started_dow)) %>% 
+  ggplot(aes(x = trip_time, y = trip_dist)) + geom_point(aes(color = started_dow))
 
 
 s_mean <- s %>% subset(trip_type == "Long_ride") %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
