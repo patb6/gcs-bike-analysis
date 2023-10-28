@@ -33,7 +33,7 @@ envloaded <- search() # Capture R environment
 
 
 # ----------- Set knitr attributes across the document ---------
-knitr::opts_chunk$set(echo = FALSE, results='hold')
+knitr::opts_chunk$set(echo = FALSE, results='hold', message = FALSE, warnings = FALSE)
 
 # ----------- Set plot attributes across all plots -------------
 originaltheme = theme_set(theme_get())
@@ -48,8 +48,9 @@ theme_update(plot.title = element_text(hjust = 0.5), plot.subtitle = element_tex
 
 The purpose of this analysis is to explore how annual members and casual riders use Cyclistic bikes differently. An analysis of 4 months in 2022 (June - September). The observed differences are:\
 - Casual customers use the bikes more on weekends and members use the bikes more during the weekdays.\
-- Casual customers use the classic bikes and members tend to use electric bikes.\
-- zzz dkslkdjflskdj sljkfslkdjflsjd sldkjslkfjsldkjf sldjfslkljd\
+- Casual customers tend to use the electric bike and members use the classic bike.\
+- Casual customers will tend to use the bike longer and not travel as far.  Members will tend to ride the the bike further\
+
 
 The paper below outlines the business context, problem statement, assumptions, methodology, analysis and discussion.
 
@@ -64,7 +65,7 @@ The Directory of Marketing, Lily Moreno, thinks that future company success will
 3.  How can Cyclistic use digital media to influence casual riders to become members?\
 
 This analysis will focus on the first question \
-> How casual riders and annual members use Cyclistic bikes differently \
+>  How casual riders and annual members use Cyclistic bikes differently \
 
 ## 2. Assumptions and Definitions
 
@@ -139,9 +140,9 @@ ddict = melt(colnames(cfile), value.name = "data fields")
 
 ```{r grab-samples}
 
-rseed = 53679                                      # Seed starting value
+rseed = as.integer(53679)                          # Seed starting value
 set.seed(rseed)                                    # Set seed for reproducability
-obs_rows = nrow(cfile)                             # dataset size
+obs_rows = as.integer(nrow(cfile))                 # dataset size
 obs_prcnt = .01                                    # sample percentage
 obs_samp = as.integer(round(obs_rows*obs_prcnt,0)) # Sample size
 
@@ -179,7 +180,7 @@ x_melt %>% ggplot(aes(x = DOW, y=pcustomer, color = Customer, group = Customer))
 
 #### Observation #2
 
-Casual and members tend to use different bicycles
+Casual and members tend to use the electric bike and members use the classic bike.
 
 ```{r ob2-bike-type-use}
 
@@ -194,7 +195,7 @@ The current member bike service is base upon 3/4 hour. Over 3/4 hour, members ar
 
 ```{r obs3-dist-time-user-type}
 
-table(s$member_casual,s$trip_type)
+kable(table(s$member_casual,s$trip_type), col.names = c("<=3/4", ">3/4"), caption = "Ride length (hours) and Customer", format="html")
 
 
 # Casual users will tend to use the bike longer and not travel as far.  Members will tend to the the bike further
@@ -205,7 +206,7 @@ s_mean <- s %>% subset(trip_type == "First_45min") %>% select(c(trip_time, trip_
 
 p1 <- s_mean %>% ggplot(aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
   geom_line(aes(linetype=member_casual)) +
-  labs(title = "Customer usage when trip time <= 3/4 hour", subtitle = "Trip Time vs Distance" )
+  labs(title = "Customer usage when trip time <= 3/4 hour", subtitle = "Average Trip Time vs Average Distance" )
 
 
 s_mean <- s %>% subset(trip_type == "Long_ride") %>% select(c(trip_time, trip_dist, member_casual, started_dow)) %>% 
@@ -213,7 +214,7 @@ s_mean <- s %>% subset(trip_type == "Long_ride") %>% select(c(trip_time, trip_di
 
 p2 <- s_mean %>% ggplot(aes(x = trip_time, y= trip_dist)) +geom_point(aes(color = started_dow),size=4) + 
   geom_line(aes(linetype=member_casual)) +
-  labs(title = "Customer usage when trip time > 3/4 hour", subtitle = "Trip Time vs Distance" )
+  labs(title = "Customer usage when trip time > 3/4 hour", subtitle = "Average Trip Time vs Average Distance" )
 
 p1
 p2

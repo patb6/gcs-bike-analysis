@@ -21,9 +21,10 @@ riders use Cyclistic bikes differently. An analysis of 4 months in 2022
 (June - September). The observed differences are:  
 - Casual customers use the bikes more on weekends and members use the
 bikes more during the weekdays.  
-- Casual customers use the classic bikes and members tend to use
-electric bikes.  
-- zzz dkslkdjflskdj sljkfslkdjflsjd sldkjslkfjsldkjf sldjfslkljd  
+- Casual customers tend to use the electric bike and members use the
+classic bike.  
+- Casual customers will tend to use the bike longer and not travel as
+far. Members will tend to ride the the bike further  
 
 The paper below outlines the business context, problem statement,
 assumptions, methodology, analysis and discussion.
@@ -98,7 +99,7 @@ available from the git-hub site ‘here’
 Results from sampling the whole data set are provided here. There are
 3009476 total rows of data. For this analysis we randomly selected 30095
 of casual and member customers. The randsom generator seed was set to
-5.3679^{4}
+53679
 
 ## 4. A summary of your analysis, visualizations and key findings
 
@@ -111,7 +112,8 @@ the bikes most, during the week.
 
 #### Observation \#2
 
-Casual and members tend to use different bicycles
+Casual and members tend to use the electric bike and members use the
+classic bike.
 
 ![](bike-case-study_files/figure-gfm/ob2-bike-type-use-1.jpeg)<!-- -->
 
@@ -122,17 +124,48 @@ members are charged for additional minutes. The casual user is for their
 entire time of use. Casual users will tend to use the bike longer and
 not travel as far. Members will tend to take the bike further
 
-    ## `summarise()` has grouped output by 'member_casual'. You can override using the
-    ## `.groups` argument.
-    ## `summarise()` has grouped output by 'member_casual'. You can override using the
-    ## `.groups` argument.
-
 ![](bike-case-study_files/figure-gfm/obs3-dist-time-user-type-1.jpeg)<!-- -->![](bike-case-study_files/figure-gfm/obs3-dist-time-user-type-2.jpeg)<!-- -->
-
-    ##         
-    ##          First_45min Long_ride
-    ##   casual       27057      3038
-    ##   member       29550       545
+<table>
+<caption>
+Ride length (hours) and Customer
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+\<=3/4
+</th>
+<th style="text-align:right;">
+\>3/4
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+casual
+</td>
+<td style="text-align:right;">
+27057
+</td>
+<td style="text-align:right;">
+3038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+member
+</td>
+<td style="text-align:right;">
+29550
+</td>
+<td style="text-align:right;">
+545
+</td>
+</tr>
+</tbody>
+</table>
 
 ## 5 References
 

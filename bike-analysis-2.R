@@ -1,6 +1,9 @@
 
 
-rm(list = ls()) ; edatest = TRUE
+# This source code file acts as a sandbox.  The code in this file may not be the final code in the RMarkdown report file.
+# Trial and error code were developed here and transferred into the RMarkdown file for write up.
+
+rm(list = ls()) ; edatest = TRUE # Clear the environment and sent the debug variable to TRUE.
 
 library(pollster)
 library(tidyverse)
