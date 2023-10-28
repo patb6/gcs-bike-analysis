@@ -1,3 +1,5 @@
-### Google Data Analytics Capstone Project - Bike data analysis
+# Introduction
+Hello, this is the repository for the Google Data Analitics capstone.
 
-[Bike Capstone Project](bike-case-study.md)
+### Google Data Analytics Capstone Project - Bike data analysis
+Click this line to go to the project paper:  [Bike Capstone Project](bike-case-study.md)
