@@ -49,9 +49,9 @@ team needs to better understand:
 3.  How can Cyclistic use digital media to influence casual riders to
     become members?  
 
-This analysis will focus on the first question  
-\> How casual riders and annual members use Cyclistic bikes
-differently  
+This analysis will focus on the first question  
+
+> How casual riders and annual members use Cyclistic bikes differently  
 
 ## 2. Assumptions and Definitions
 
@@ -60,11 +60,11 @@ license agreement and privacy and data dictionary.
 
 - Casual riders - purchase single-ride or full-day passes  
 - Members - Use bikes for any length of time  
-- Specific data used in this analysis were months of June-September of
-  2022. This period would reflect spring/summer periods and post-COVID
-  lock-down.  
-- Along with the data provided several additional fields were calculated
-  and outlined in the data dictionary in the reference section.  
+- Specific data used in this analysis were months of June-September
+  of 2022. This period would reflect spring/summer periods and
+  post-COVID lock-down.  
+- Along with the data provided several additional fields were
+  calculated. 
 
 ## 3. Methodology
 
@@ -87,14 +87,18 @@ Data cleaning included:
   was user or machine error)  
 - Keep rows where end station name and longitude exist (remove data that
   did not have an endpoint)  
-- Create day of week (dow) with Monday as the starting day.  
-- Calculate distance based on longitude and latitude  
-- Category variable for trips less than or equal 45 minutes or trips
-  longer than 45 minutes - casual user bike rides include the first 45
-  minutes  
+- Created variable tip_time from the difference between the ended_at and
+  started_at variable. 
+- Create variables started_dow and ended_dow as day of week with Monday
+  as the starting day.  
+- Created variable trip_dist by calculating distance based on longitude
+  and latitude. 
+- Created category variable trip_type for trips less than or equal 45
+  minutes or trips longer than 45 minutes - casual user bike rides
+  include the first 45 minutes 
 
 For readability output from the R code was turned off. Source codes is
-available from the git-hub site ‘here’
+available from the git-hub site [‘here’](bike-case-study.Rmd)
 
 Results from sampling the whole data set are provided here. There are
 3009476 total rows of data. For this analysis we randomly selected 30095
